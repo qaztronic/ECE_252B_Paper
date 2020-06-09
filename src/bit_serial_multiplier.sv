@@ -14,9 +14,9 @@ module bit_serial_multiplier #(K)
   wire xy = x & y;
   wire c_in_0 = 0;
   // wire [K-1:0] p_in;
-  wire [K-1:1] p_out;
-  wire [K-1:0] c_out;
-  wire [K-1:0] r_out;
+  wire [K-2:1] p_out;
+  wire [K-2:0] c_out;
+  wire [K-2:0] r_out;
   
   generate
     for(genvar j = 0; j < K - 1; j++)
