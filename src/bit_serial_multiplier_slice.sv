@@ -61,10 +61,11 @@ module bit_serial_multiplier_slice
   d_flip_flop r_out_ff_i(.d(r_in), .q(r_out), .q_n(), .*);
 
   // --------------------------------------------------------------------
-  mux m0(c_s, xy, r_in, p_out);
+  // mux m0(c_s, xy, r_in, p_out);
+  assign p_out = r_in ? xy : c_s;
   
   // --------------------------------------------------------------------
-  assign c_x[1] = x_ff_q & Y;
+  assign c_x[1] = x_ff_q & y;
   assign c_x[2] = y_ff_q & x;
   assign c_x[3] = p_in_ff_q;
   assign c_x[4] = c_in;
@@ -72,4 +73,3 @@ module bit_serial_multiplier_slice
 
 // --------------------------------------------------------------------
 endmodule
-

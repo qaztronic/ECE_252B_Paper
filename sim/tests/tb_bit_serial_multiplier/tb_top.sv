@@ -5,6 +5,7 @@
 module tb_top;
   timeunit 1ns;
   timeprecision 100ps;
+  import tb_top_pkg::*;
 
   // --------------------------------------------------------------------
   localparam realtime PERIODS[1] = '{10ns};
@@ -22,39 +23,47 @@ module tb_top;
   wire clk = clk_100mhz;
 
   // --------------------------------------------------------------------
-  logic reset = 1;
-  logic  a;
-  logic  b;
-  wire x;
+  localparam N = 3;
+  localparam K = (2 * N) + 1;
+  logic x        ;
+  logic y        ;
+  logic first_bit = 0;
+  logic last_bit  = 1;
+  wire p         ;
 
-  bit_serial_adder dut(.*);
+  bit_serial_multiplier #(K) dut(.*);
 
   // --------------------------------------------------------------------
   event tick;
 
-  task automatic do_add(input int a_p, input int b_p, output int result);
-    int a_w = $clog2(a_p);
-    int b_w = $clog2(b_p);
-    int w = a_w > b_w ? a_w : b_w;
+  task automatic do_multply(input int x_p, input int y_p, output int result);
+    // int a_w = $clog2(x_p);
+    // int b_w = $clog2(y_p);
+    // int w = a_w > b_w ? a_w : b_w;
 
-    reset = 1;
-    @(negedge clk);
-    reset = 0;
+    // last_bit = 1;
+    // @(negedge clk);
+    @(posedge clk);
+    first_bit = 1;
+    last_bit = 0;
 
-    for(int i = 0; i < w + 2; i++)
+    // for(int i = 0; i < w + 2; i++)
+    for(int i = 0; i < K - 1; i++)
     begin
-      a = a_p[i];
-      b = b_p[i];
+      x = x_p[i];
+      y = y_p[i];
       @(posedge clk);
       // #(1);
-      @(negedge clk);
+      // @(negedge clk);
+      first_bit = 0;
       -> tick;
-      result[i] = x;
+      result[i] = p;
       // $display("result[%d] = %d", i, x);
     end
 
-    @(posedge clk);
-    reset = 1;
+    // repeat(K) @(posedge clk);
+    repeat(2) @(posedge clk);
+    last_bit = 1;
 
   endtask
 
@@ -68,44 +77,55 @@ module tb_top;
     wait(~tb_reset[0]);
     repeat(4) @(posedge clk);
 
-    // do_add(1, 1, result);
-    // $display("result = %d", result);
-    // @(posedge clk);
+    do_multply(3, 3, result);
+    $display("result = %d", result);
+    @(posedge clk);
 
-    for(int x = 0; x < 2**3; x++)
-      for(int y = 0; y < 2**3; y++)
-      begin
-        do_add(x, y, result);
-        sum_pass = (result == x + y) ? "PASS" : "FAIL";
-        if(sum_pass == "FAIL") test_pass = "FAIL";
-        $display("x: %d | y: %d | result: %d || %s", x, y, result, sum_pass);
-        @(posedge clk);
-      end
+    do_multply(5, 5, result);
+    $display("result = %d", result);
+    @(posedge clk);
 
-    for(int x = 0; x < 2**3; x++)
-      for(int y = 0; y < 2**3; y++)
-      begin
-        do_add(x * -1, y, result);
-        sum_pass = (result == (x * -1) + y) ? "PASS" : "FAIL";
-        if(sum_pass == "FAIL") test_pass = "FAIL";
-        $display("x: %d | y: %d | result: %d || %s", x * -1, y, result, sum_pass);
-        @(posedge clk);
-      end
+    do_multply(5, 7, result);
+    $display("result = %d", result);
+    @(posedge clk);
 
-    for(int x = 0; x < 2**3; x++)
-      for(int y = 0; y < 2**3; y++)
-      begin
-        do_add(x, y * -1, result);
-        sum_pass = (result == x + (y * -1)) ? "PASS" : "FAIL";
-        if(sum_pass == "FAIL") test_pass = "FAIL";
-        $display("x: %d | y: %d | result: %d || %s", x, y * -1, result, sum_pass);
-        @(posedge clk);
-      end
+    // for(int a = 0; a < 2**3; a++)
+      // for(int b = 0; b < 2**3; b++)
+      // begin
+        // do_multply(a, b, result);
+        // sum_pass = (result == a * b) ? "PASS" : "FAIL";
+        // if(sum_pass == "FAIL") test_pass = "FAIL";
+        // $display("a: %d | b: %d | result: %d || %s", a, b, result, sum_pass);
+        // @(posedge clk);
+      // end
 
+    // for(int x = 0; x < 2**3; x++)
+      // for(int y = 0; y < 2**3; y++)
+      // begin
+        // do_add(x * -1, y, result);
+        // sum_pass = (result == (x * -1) + y) ? "PASS" : "FAIL";
+        // if(sum_pass == "FAIL") test_pass = "FAIL";
+        // $display("x: %d | y: %d | result: %d || %s", x * -1, y, result, sum_pass);
+        // @(posedge clk);
+      // end
+
+    // for(int x = 0; x < 2**3; x++)
+      // for(int y = 0; y < 2**3; y++)
+      // begin
+        // do_add(x, y * -1, result);
+        // sum_pass = (result == x + (y * -1)) ? "PASS" : "FAIL";
+        // if(sum_pass == "FAIL") test_pass = "FAIL";
+        // $display("x: %d | y: %d | result: %d || %s", x, y * -1, result, sum_pass);
+        // @(posedge clk);
+      // end
+
+    // repeat(4) @(posedge clk);
+    // $display("--------------------------------------------------------------------");
+    // $display("Test %s!!!", test_pass);
+    // $stop;
+    
     repeat(4) @(posedge clk);
-    $display("--------------------------------------------------------------------");
-    $display("Test %s!!!", test_pass);
-    $stop;
+    test_done(test_pass);
   end
 
 // --------------------------------------------------------------------

@@ -13,7 +13,7 @@ module bit_serial_multiplier #(K)
   // --------------------------------------------------------------------
   wire xy = x & y;
   wire c_in_0 = 0;
-  wire [K-1:0] p_in;
+  // wire [K-1:0] p_in;
   wire [K-1:1] p_out;
   wire [K-1:0] c_out;
   wire [K-1:0] r_out;
@@ -29,6 +29,7 @@ module bit_serial_multiplier #(K)
         , .p_out(p)
         , .c_out(c_out[j])
         , .r_out(r_out[j])
+        , .*
         );
       end
       else if(j < K - 2)
@@ -40,6 +41,7 @@ module bit_serial_multiplier #(K)
         , .p_out(p_out[j])
         , .c_out(c_out[j])
         , .r_out(r_out[j])
+        , .*
         );
       end
       else
@@ -53,6 +55,7 @@ module bit_serial_multiplier #(K)
         , .p_out(p_out[j])
         , .c_out(c_out[j])
         , .r_out(r_out[j])
+        , .*
         );
       end
   endgenerate
