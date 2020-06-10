@@ -23,47 +23,49 @@ module tb_top;
   wire clk = clk_100mhz;
 
   // --------------------------------------------------------------------
-  localparam N = 4;
-  localparam K = (2 * N);
-  logic x;
-  logic y;
-  logic first_bit = 0;
-  logic last_bit  = 1;
-  wire p;
+  localparam W = 3;
+  localparam N = 2;
+  
+  logic reset;
+  logic first_digit;
+  logic [W-1:0] a;
+  logic [W-1:0] b;
+  wire  [W-1:0] s;
 
-  bit_serial_multiplier #(N) dut(.*);
+  digit_serial_adder #(W) dut(.*);
+
 
   // --------------------------------------------------------------------
   event tick;
 
-  task automatic do_multply(input int x_p, input int y_p, output int result);
-    last_bit = 0;
+  task automatic do_add(input int a_p, input int b_p, output int result);
+    reset = 0;
     @(posedge clk);
-    first_bit = 1;
+    first_digit = 1;
 
     for(int i = 0; i < N; i++)
     begin
-      x = x_p[i];
-      y = y_p[i];
       @(negedge clk);
-      -> tick;
-      result[i] = p;
+      a = a_p[i*W+:W];
+      b = b_p[i*W+:W];
       @(posedge clk);
-      first_bit = 0;
+      -> tick;
+      result[i*W+:W] = s;
+      first_digit = 0;
     end
 
-    for(int i = N; i < K; i++)
-    begin
-      x = x_p[N - 1];
-      y = y_p[N - 1];
-      @(negedge clk);
-      -> tick;
-      result[i] = p;
-      @(posedge clk);
-    end
+    // for(int i = N; i < K; i++)
+    // begin
+      // x = a_p[N - 1];
+      // y = b_p[N - 1];
+      // @(negedge clk);
+      // -> tick;
+      // result[i] = p;
+      // @(posedge clk);
+    // end
 
     repeat(2) @(posedge clk);
-    last_bit = 1;
+    reset = 1;
 
   endtask
 
@@ -74,18 +76,35 @@ module tb_top;
 
   initial
   begin
+    reset = 1;
+    first_digit = 0;
+  
     wait(~tb_reset[0]);
+    reset = 0;
     repeat(4) @(posedge clk);
+    reset = 1;
 
-    for(int a = 0; a < 2**(N-1); a++)
-      for(int b = 0; b < 2**(N-1); b++)
-      begin
-        do_multply(a, b, result);
-        sum_pass = (result == a * b) ? "PASS" : "FAIL!!!";
-        if(sum_pass == "FAIL") test_pass = "FAIL";
-        $display("a: %d | b: %d | result: %d || %s", a, b, result, sum_pass);
-        @(posedge clk);
-      end
+    do_add(1, 2, result);
+    $display("result = %d", result);
+    @(posedge clk);
+
+    do_add(2, 2, result);
+    $display("result = %d", result);
+    @(posedge clk);
+
+    do_add(3, 1, result);
+    $display("result = %d", result);
+    @(posedge clk);
+
+    // for(int a = 0; a < 2**(N-1); a++)
+      // for(int b = 0; b < 2**(N-1); b++)
+      // begin
+        // do_multply(a, b, result);
+        // sum_pass = (result == a * b) ? "PASS" : "FAIL!!!";
+        // if(sum_pass == "FAIL") test_pass = "FAIL";
+        // $display("a: %d | b: %d | result: %d || %s", a, b, result, sum_pass);
+        // @(posedge clk);
+      // end
 
     repeat(4) @(posedge clk);
     test_done(test_pass);

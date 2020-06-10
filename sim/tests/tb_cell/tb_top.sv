@@ -6,6 +6,7 @@ module tb_top;
   timeunit 1ns;
   timeprecision 100ps;
   import tb_top_pkg::*;
+  import alu_pkg::*;
 
   // --------------------------------------------------------------------
   localparam realtime PERIODS[1] = '{10ns};
@@ -76,6 +77,18 @@ module tb_top;
   begin
     wait(~tb_reset[0]);
     repeat(4) @(posedge clk);
+
+    do_multply(1, 8, result);
+    $display("result = %d", result);
+    @(posedge clk);
+
+    do_multply(4, 4, result);
+    $display("result = %d", result);
+    @(posedge clk);
+
+    do_multply(5, 7, result);
+    $display("result = %d", result);
+    @(posedge clk);
 
     for(int a = 0; a < 2**(N-1); a++)
       for(int b = 0; b < 2**(N-1); b++)
