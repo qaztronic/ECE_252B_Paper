@@ -18,7 +18,7 @@ module bit_serial_multiplier_slice
   // --------------------------------------------------------------------
   wire reset = last_bit;
   wire en = r_in;
-  
+
   // ------------------------------------------------------------------
   wire [4:1] c_x    ;
   wire       c_c_in ;
@@ -32,8 +32,6 @@ module bit_serial_multiplier_slice
   , .s    (c_s    )
   , .c    (c_c    )
   , .c_out(c_c_out)
-  // , .c    (c_c_out)
-  // , .c_out(c_c)
   );
 
   // --------------------------------------------------------------------
@@ -63,9 +61,9 @@ module bit_serial_multiplier_slice
   d_flip_flop r_out_ff_i(.d(r_in), .q(r_out), .q_n(), .*);
 
   // --------------------------------------------------------------------
-  // mux m0(c_s, xy, r_in, p_out);
-  assign p_out = r_in ? xy : c_s;
-  
+  mux m0(c_s, xy, r_in, p_out);
+  // assign p_out = r_in ? xy : c_s;
+
   // --------------------------------------------------------------------
   assign c_x[1] = x_ff_q & y;
   assign c_x[2] = y_ff_q & x;

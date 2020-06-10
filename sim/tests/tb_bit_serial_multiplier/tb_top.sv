@@ -37,7 +37,6 @@ module tb_top;
   event tick;
 
   task automatic do_multply(input int x_p, input int y_p, output int result);
-    // @(negedge clk);
     last_bit = 0;
     @(posedge clk);
     first_bit = 1;
@@ -51,7 +50,6 @@ module tb_top;
       result[i] = p;
       @(posedge clk);
       first_bit = 0;
-      // $display("result[%d] = %d", i, x);
     end
 
     for(int i = N; i < K; i++)
@@ -65,7 +63,6 @@ module tb_top;
     end
 
     repeat(2) @(posedge clk);
-    // repeat(2) @(negedge clk);
     last_bit = 1;
 
   endtask
