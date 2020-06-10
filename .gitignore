@@ -3,3 +3,4 @@ work
 *.wlf
 *.mpf
 *.do
+docs/*

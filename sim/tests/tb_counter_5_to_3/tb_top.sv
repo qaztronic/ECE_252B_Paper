@@ -42,7 +42,8 @@ module tb_top;
       x = i[3:0];
       c_in = i[4];
       repeat(4) @(posedge clk_100mhz);
-      sum_pass = (x[1] + x[2] + x[3] + x[4] + c_in == s + (2 * (c + c_out)) ) ? "PASS" : "FAIL";
+      sum_pass = (x[1] + x[2] + x[3] + x[4] + c_in == s + (2 * c) + (4 * c_out) ) ? "PASS" : "FAIL";
+      // sum_pass = (x[1] + x[2] + x[3] + x[4] + c_in == s + (2 * (c + c_out)) ) ? "PASS" : "FAIL";
 
       if(sum_pass == "FAIL")
         test_pass = "FAIL";

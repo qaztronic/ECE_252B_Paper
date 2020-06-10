@@ -23,15 +23,15 @@ module tb_top;
   wire clk = clk_100mhz;
 
   // --------------------------------------------------------------------
-  localparam N = 3;
-  localparam K = (2 * N) + 1;
-  logic x        ;
-  logic y        ;
+  localparam N = 4;
+  localparam K = (2 * N);
+  logic x;
+  logic y;
   logic first_bit = 0;
   logic last_bit  = 1;
-  wire p         ;
+  wire p;
 
-  bit_serial_multiplier #(K) dut(.*);
+  bit_serial_multiplier #(N) dut(.*);
 
   // --------------------------------------------------------------------
   event tick;
@@ -42,16 +42,26 @@ module tb_top;
     @(posedge clk);
     first_bit = 1;
 
-    for(int i = 0; i < K - 1; i++)
+    for(int i = 0; i < N; i++)
     begin
       x = x_p[i];
       y = y_p[i];
-      @(posedge clk);
-      // @(negedge clk);
-      first_bit = 0;
+      @(negedge clk);
       -> tick;
       result[i] = p;
+      @(posedge clk);
+      first_bit = 0;
       // $display("result[%d] = %d", i, x);
+    end
+
+    for(int i = N; i < K; i++)
+    begin
+      x = x_p[N - 1];
+      y = y_p[N - 1];
+      @(negedge clk);
+      -> tick;
+      result[i] = p;
+      @(posedge clk);
     end
 
     repeat(2) @(posedge clk);
@@ -70,23 +80,23 @@ module tb_top;
     wait(~tb_reset[0]);
     repeat(4) @(posedge clk);
 
-    // do_multply(3, 3, result);
-    // $display("result = %d", result);
-    // @(posedge clk);
+    do_multply(1, 8, result);
+    $display("result = %d", result);
+    @(posedge clk);
 
-    // do_multply(5, 5, result);
-    // $display("result = %d", result);
-    // @(posedge clk);
+    do_multply(4, 4, result);
+    $display("result = %d", result);
+    @(posedge clk);
 
-    // do_multply(5, 7, result);
-    // $display("result = %d", result);
-    // @(posedge clk);
+    do_multply(5, 7, result);
+    $display("result = %d", result);
+    @(posedge clk);
 
-    for(int a = 0; a < 2**3; a++)
-      for(int b = 0; b < 2**3; b++)
+    for(int a = 0; a < 2**(N-1); a++)
+      for(int b = 0; b < 2**(N-1); b++)
       begin
         do_multply(a, b, result);
-        sum_pass = (result == a * b) ? "PASS" : "FAIL";
+        sum_pass = (result == a * b) ? "PASS" : "FAIL!!!";
         if(sum_pass == "FAIL") test_pass = "FAIL";
         $display("a: %d | b: %d | result: %d || %s", a, b, result, sum_pass);
         @(posedge clk);

@@ -32,6 +32,8 @@ module bit_serial_multiplier_slice
   , .s    (c_s    )
   , .c    (c_c    )
   , .c_out(c_c_out)
+  // , .c    (c_c_out)
+  // , .c_out(c_c)
   );
 
   // --------------------------------------------------------------------
